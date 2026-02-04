@@ -1,0 +1,45 @@
+import { Wallet, Contract, Provider } from 'zksync-ethers';
+import * as dotenv from 'dotenv';
+import hre, { artifacts } from 'hardhat';
+
+dotenv.config();
+
+const TOKEN_ADDRESS = '0x11aBDC739024ba889220BCaE119325C2071C1229';
+
+async function main() {
+  const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
+  const newOwner = process.env.NEW_OWNER_ADDRESS;
+
+  if (!privateKey) {
+    throw new Error('DEPLOYER_PRIVATE_KEY is not set in .env');
+  }
+  if (!newOwner) {
+    throw new Error('NEW_OWNER_ADDRESS is not set in .env');
+  }
+
+  const rpcUrl = (hre.network.config as any).url as string | undefined;
+  if (!rpcUrl) {
+    throw new Error('No RPC url found in Hardhat network config');
+  }
+
+  const provider = new Provider(rpcUrl);
+  const wallet = new Wallet(privateKey, provider);
+
+  const artifact = await artifacts.readArtifact('Xirium');
+  const token = new Contract(TOKEN_ADDRESS, artifact.abi, wallet);
+
+  console.log(
+    `Transferring ownership of Xirium on ${hre.network.name} for token ${TOKEN_ADDRESS} to ${newOwner}...`,
+  );
+
+  const tx = await token.transferOwnership(newOwner);
+  console.log('Tx sent:', tx.hash);
+  await tx.wait();
+
+  console.log('Ownership transfer initiated. New owner must call acceptOwnership().');
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
