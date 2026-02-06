@@ -146,15 +146,13 @@ tsconfig.json
 package.json
 package-lock.json
 README.md
-Xirium_Mainnet_Deploy_Checklist.md
 ```
 
 ---
 
 ## Documentation
 
-- `Xirium_Mainnet_Deploy_Checklist.md` – internal deployment and ops checklist (kept for transparency)
-
+- `README.md' - This file. 
 ---
 
 ## License
